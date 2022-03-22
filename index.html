@@ -9,13 +9,6 @@
   </head>
   <body></body>
   <script>
-    function saveData(name, data){
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', 'lib/save.php'); // 'write_data.php' is the path to the php file described above.
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.send(JSON.stringify({filedata: data}));
-    }
-
     var jsPsych = initJsPsych({
       show_progress_bar: true,
       on_finish: function() {
@@ -43,6 +36,25 @@
       stimulus: 'Hello world!'
     }
     timeline.push(hello_trial);
+
+    var saveResults = {
+      type: jsPsychCallFunction,
+      async: true,
+      func: function(done){
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'lib/save.php');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+          if(xhr.status == 200){
+            var response = JSON.parse(xhr.responseText);
+            console.log(response.success);
+          }
+          done(); // invoking done() causes experiment to progress to next trial.
+        };
+        xhr.send(jsPsych.data.get().json());
+      }
+    }
+    timeline.push(saveResults);
 
     jsPsych.run(timeline);
   </script>
