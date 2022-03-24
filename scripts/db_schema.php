@@ -1,43 +1,37 @@
 <?php
 
-// get mysql username and password from env
-$mysql_user = getenv('MYSQL_USER');
-$mysql_pass = getenv('MYSQL_PASSWORD');
+echo "\n";
+# make sure script runs in CLI
+if (php_sapi_name() != 'cli') {
+    die('This script must be run from the command line.');
+}
 
-$mysql_server = 'localhost';
-$db_name = 'survey_data';
+# read in conf/config.json
+$config_file = implode(DIRECTORY_SEPARATOR,
+  array(dirname(__FILE__), "..", "conf", "config.json")
+);
+$config_json = file_get_contents($config_file);
+$config = json_decode($config_json, true);
+
 
 // schema
-$schema = <<<EOD
-/* prolific users to get unique results */
-CREATE TABLE IF NOT EXISTS `survey_users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `prolific_id` varchar(255) NOT NULL
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+$schema = array(
+  // create database
+  "CREATE DATABASE IF NOT EXISTS {$config['db_name']};",
 
-/* image_prompts: images to be displayed in the survey */
-CREATE TABLE IF NOT EXISTS `image_prompts` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `image_uri` varchar(255) NOT NULL,
-  `image_type` varchar(255) NOT NULL,
-  `image_order` int(11) NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  "USE {$config['db_name']};",
 
-/* image_prompts_by_user: linking table with datestamp and image_prompts */
-CREATE TABLE IF NOT EXISTS `image_prompts_by_user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `survey_user_id` int(11) NOT NULL,
-  `image_prompt_id` int(11) NOT NULL,
-  `datestamp` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  /* prolific users to get unique results */
+  "CREATE TABLE IF NOT EXISTS `survey_users` (`id` int(11) NOT NULL AUTO_INCREMENT, `prolific_id` varchar(255) NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
 
-EOD;
+  /* image_prompts: images to be displayed in the survey */
+  "CREATE TABLE IF NOT EXISTS `image_prompts` (`id` int(11) NOT NULL AUTO_INCREMENT, `image_uri` varchar(255) NOT NULL, `image_type` varchar(255) NOT NULL, `image_order` int(11) NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
+  /* image_prompts_by_user: linking table with datestamp and image_prompts */
+  "CREATE TABLE IF NOT EXISTS `image_prompts_by_user` (`id` int(11) NOT NULL AUTO_INCREMENT, `survey_user_id` int(11) NOT NULL, `image_prompt_id` int(11) NOT NULL, `datestamp` datetime NOT NULL, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+);
 
 // connect to mysql
-$mysqli = new mysqli($mysql_server, $mysql_user, $mysql_pass, $db_name);
+$mysqli = new mysqli($config['mysql_server'], $config['mysql_user'], $config['mysql_pass']);
 
 // check connection
 if ($mysqli->connect_errno) {
@@ -45,6 +39,19 @@ if ($mysqli->connect_errno) {
 }
 
 // create database
-if (!$mysqli->query($schema)) {
-    echo "Error creating database: (" . $mysqli->errno . ") " . $mysqli->error;
+foreach ($schema as $query) {
+  $mysqli->query($query);
+  if ($mysqli->errno) {
+      echo "Failed to create database: (" . $mysqli->errno . ") " . $mysqli->error;
+  }
 }
+
+
+// do {
+//     if ($result = $mysqli->store_result()) {
+//       var_dump($result->fetch_all(MYSQLI_ASSOC));
+//         $result->free();
+//     }
+// } while ($mysqli->next_result());
+$mysqli->commit();
+$mysqli->close();
