@@ -55,6 +55,12 @@ function get_config_from_input() {
   echo "Enter MySQL password: ";
   $mysql_pass = trim(fgets(STDIN));
 
+  echo "Enter MySQL port (default 3306): ";
+  $mysql_port = trim(fgets(STDIN));
+  if(empty($mysql_port)) {
+    $mysql_port = 3306;
+  }
+
   # prompt user for database name
   echo "Enter database name: ";
   $db_name = trim(fgets(STDIN));
@@ -85,6 +91,7 @@ function get_config_from_input() {
     'mysql_server' => $mysql_server,
     'mysql_user' => $mysql_user,
     'mysql_pass' => $mysql_pass,
+    'mysql_port' => $mysql_port,
     'db_name' => $db_name,
     'data_dir' => $data_dir
   );

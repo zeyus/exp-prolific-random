@@ -6,12 +6,15 @@
     <script src="js/conf.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-call-function@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.1.0"></script>
     <link href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <link href="css/prolific.css" rel="stylesheet" type="text/css" />
   </head>
   <body></body>
   <script>
     var jsPsych = initJsPsych({
       show_progress_bar: true,
+      auto_update_progress_bar: false,
       on_finish: function() {
         window.location = prolificURL + prolificID;
       }
@@ -21,7 +24,7 @@
     var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
     var study_id = jsPsych.data.getURLVariable('STUDY_ID');
     var session_id = jsPsych.data.getURLVariable('SESSION_ID');
-
+    
     // Add Prolific info to data
     jsPsych.data.addProperties({
       subject_id: subject_id,
@@ -32,33 +35,117 @@
     /* create timeline */
     var timeline = [];
 
-    const hello_trial = {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: 'Hello world!'
+
+    var addImageTrials = async function(prompt_images) {
+      if (prompt_images.length < 1) {
+          const error_page = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: 'Something went wrong.',
+            on_start: function() {
+              jsPsych.setProgressBar(1);
+            }
+          }
+          timeline.push(error_page);
+          return;
+        }
+        var preambles = [];
+        var n_images = prompt_images.length;
+        for (var i = 0; i < n_images; i++) {
+          preambles.push({
+            preamble: '<img src="' + prompt_images[i]['image_uri'] + '" style="width:100%; height:auto;">',
+            data: {
+              image_id: prompt_images[i]['id'],
+            },
+          });
+        }
+
+        var image_trials = {
+          type: jsPsychSurveyMultiChoice,
+          timeline: preambles,
+          questions: [
+            {prompt: 'How much do you like this image?', options: [
+                'Not at all',
+                'Somewhat',
+                'Very much',
+            ], required: true, name: "image_rating"},
+            {prompt: 'How creative is this image?', options: [
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+            ], required: true, name: "image_creativity"},
+          ],
+          on_finish: function() {
+            var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
+            jsPsych.setProgressBar(curr_progress_bar_value + (1/n_images));
+            
+          }
+          
+        }
+        timeline.push(image_trials);
+        
+    };
+
+    var init_survey = async function ()  {
+      const options = {
+            method: 'POST',
+            body: JSON.stringify(jsPsych.data.dataProperties),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+
+        fetch('lib/get_survey_list.php', options)
+        .then(res => res.json())
+        .then(res => {
+          addImageTrials(res).then(runTrials);
+        }).catch(err => {
+          addImageTrials([]).then(runTrials);
+          console.log(err);
+        });
     }
-    timeline.push(hello_trial);
-
-    // https://www.jspsych.org/7.2/plugins/survey-multi-choice/
-
-    var saveResults = {
+    
+    runTrials = function () {
+      var saveResults = {
       type: jsPsychCallFunction,
       async: true,
       func: function(done){
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'lib/save.php');
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onload = function() {
-          if(xhr.status == 200){
-            var response = JSON.parse(xhr.responseText);
-            console.log(response.success);
-          }
-          done(); // invoking done() causes experiment to progress to next trial.
-        };
-        xhr.send(jsPsych.data.get().json());
+          var xhr = new XMLHttpRequest();
+          xhr.open('POST', 'lib/save.php');
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.onload = function() {
+            done(); // invoking done() causes experiment to progress to next trial.
+          };
+          xhr.send(JSON.stringify({filedata: jsPsych.data.get().csv()}));
+        }
       }
-    }
-    timeline.push(saveResults);
+      timeline.push(saveResults);
 
-    jsPsych.run(timeline);
+      jsPsych.run(timeline);
+    }
+
+    init_survey();
+
+    // var getImages = {
+    //   type: jsPsychCallFunction,
+    //   async: true,
+    //   func: function(done){
+    //     console.log('getImages');
+    //     console.log(jsPsych.data.dataProperties);
+        
+    //   }
+    // }
+    // timeline.push(getImages);
+
+    
+
+    
+
+    
+
+    // https://www.jspsych.org/7.2/plugins/survey-multi-choice/
+
+    
   </script>
 </html>
