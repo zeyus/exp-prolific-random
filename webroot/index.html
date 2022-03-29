@@ -4,21 +4,77 @@
     <title>My experiment</title>
     <script src="https://unpkg.com/jspsych@7.2.1"></script>
     <script src="js/conf.js"></script>
+    <script src="js/nouislider.min.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-call-function@1.1.0"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.1.0"></script>
-    <link href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/@jspsych/plugin-survey@0.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.0"></script>
+    <link rel="stylesheet" href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" />
+    <link rel="stylesheet" href="https://unpkg.com/@jspsych/plugin-survey@0.1.1/css/survey.css">
+    <link href="css/nouislider.min.css" rel="stylesheet" type="text/css" />
     <link href="css/prolific.css" rel="stylesheet" type="text/css" />
   </head>
   <body></body>
   <script>
+    class sliderExtension {
+      constructor(jsPsych){
+        this.jsPsych = jsPsych;
+      }
+      initialize(params){
+        return new Promise((resolve, reject)=>{
+          console.log(params.demo); // will output 'value'
+
+          resolve(); // finish initialzing
+        })
+      }
+      on_start(params){
+        console.log(params); // outputs 'value' before the trial begins.
+      }
+      on_load(params){
+        console.log(params);
+        createSlider(params.sliders, this.jsPsych.getDisplayElement());
+        
+      }
+      on_finish(params){
+        return {
+          sliderSurvey: params.value
+        }
+      }
+    }
+    sliderExtension.info = {
+      name: 'sliderSurvey'
+    }
     var jsPsych = initJsPsych({
       show_progress_bar: true,
       auto_update_progress_bar: false,
       on_finish: function() {
         window.location = prolificURL + prolificID;
-      }
+      },
+      extensions: [
+        {type: sliderExtension, params: {demo: 'value'}},
+      ],
     });
+
+    var createSlider = function(elId, wrapperEl) {
+      elId = '#' + elId;
+      console.log(elId);
+      var sliderRating = wrapperEl.querySelector(elId);
+      console.log(sliderRating);
+      noUiSlider.create(sliderRating, {
+        start: [0],
+        step: 1,
+        range: {
+          'min': [0],
+          'max': [100]
+        }
+      });
+      var sliderRatingValueElement = wrapperEl.querySelector(elId + '-value');
+
+      sliderRating.noUiSlider.on('update', function (values, handle) {
+        sliderRatingValueElement.innerHTML = values[handle];
+      });
+
+    };
 
     // capture info from Prolific
     var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
@@ -52,7 +108,15 @@
         var n_images = prompt_images.length;
         for (var i = 0; i < n_images; i++) {
           preambles.push({
-            preamble: '<img src="' + prompt_images[i]['image_uri'] + '" style="width:100%; height:auto;">',
+            pages: 
+            [
+              [
+                {type: "html", prompt: '<img src="' + prompt_images[i]['image_uri'] + '" style="width:100%; height:auto;">'},
+                {type: "html", prompt: '<div id="slider-rating"></div><span id="slider-rating-value"></span>'},
+                {type: "likert", prompt: 'How much do you like this image?',  likert_scale_min: 0, likert_scale_max: 10, required: true, name: "image_rating"},
+                {type: "likert", prompt: 'How creative is this image?', likert_scale_min: 0, likert_scale_max: 100, required: true, name: "image_creativity"},
+              ]
+            ],
             data: {
               image_id: prompt_images[i]['id'],
             },
@@ -60,22 +124,16 @@
         }
 
         var image_trials = {
-          type: jsPsychSurveyMultiChoice,
+          type: jsPsychSurvey,
           timeline: preambles,
-          questions: [
-            {prompt: 'How much do you like this image?', options: [
-                'Not at all',
-                'Somewhat',
-                'Very much',
-            ], required: true, name: "image_rating"},
-            {prompt: 'How creative is this image?', options: [
-                '1',
-                '2',
-                '3',
-                '4',
-                '5',
-            ], required: true, name: "image_creativity"},
+          button_label_finish: "continue",
+          extensions: [
+            {type: sliderExtension, params: {sliders: 'slider-rating'}},
           ],
+          on_load: function() {
+
+            
+          },
           on_finish: function() {
             var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
             jsPsych.setProgressBar(curr_progress_bar_value + (1/n_images));
