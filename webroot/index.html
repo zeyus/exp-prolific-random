@@ -21,16 +21,18 @@
       show_progress_bar: true,
       auto_update_progress_bar: false,
       on_finish: function() {
+        // perhaps revisit this and handle with backend instead of jspsych
         window.location = prolificURL + prolificID;
       },
     });
 
-    var createSlider = function(elId, wrapperEl) {
+    var createSlider = function(elId, wrapperEl, onChange) {
       elSelector = '#' + elId;
-      console.log(elId);
+
       var sliderRating = wrapperEl.querySelector(elSelector);
+
       noUiSlider.create(sliderRating, {
-        start: [0],
+        start: [50],
         step: 1,
         range: {
           'min': [0],
@@ -43,14 +45,18 @@
           density: 1
         }
       });
-      // var sliderRatingValueElement = wrapperEl.querySelector(elSelector + '-value');
 
       sliderRating.noUiSlider.on('update', function (values, handle) {
         var val = Math.round(values[handle]);
-        // sliderRatingValueElement.innerHTML = val;
+        // add the updated value to the trial's data
         jsPsych.getCurrentTrial().data[elId] = val;
+        
       });
-
+      sliderRating.noUiSlider.on('change', function (values, handle) {
+        // call the onChange function to indicate slider has been interacted with.
+        onChange(sliderRating);
+      });
+      return sliderRating;
     };
 
     // capture info from Prolific
@@ -100,16 +106,43 @@
           });
         }
 
+        var sliders = [];
+        // to prevent the event handler from being called twice
+        var surveyInitialized = false;
+
         var image_trials = {
           type: jsPsychSurvey,
           timeline: preambles,
           button_label_finish: "continue",
           on_render_question_complete: function(sender, options) {
+            // only deal with sliders
             if (options.question.name.startsWith("slider_")) {
-              createSlider(options.question.name, options.htmlElement);
+              if (!surveyInitialized) {
+                // add a onCompleting event handler to prevent survey from submitting
+                // if any sliders have not yet been changed (or at least clicked).
+                sender.onCompleting.add(function (sender, options) {
+                  if(sliders.length > 0) {
+                    options.allowComplete = false;
+                  }
+                });
+                surveyInitialized = true;
+              }
+
+              // create slider
+              var slider = createSlider(options.question.name, options.htmlElement, function(curSlider) {
+                // on change, remove it from the list of sliders
+                for (var i = 0; i < sliders.length; i++) {
+                  if (sliders[i] == curSlider) {
+                    sliders.splice(i, 1);
+                    // deregister the slider's onChange event handler.
+                    curSlider.noUiSlider.off('change');
+                    break;
+                  }
+                }
+              });
+              // add the slider to the list of sliders
+              sliders.push(slider);
             }
-            // createSlider('slider-rating', trial.DOM_reference);
-            // createSlider('slider-creativity', trial.DOM_reference);
           },
           on_finish: function(data) {
             console.log(data);
