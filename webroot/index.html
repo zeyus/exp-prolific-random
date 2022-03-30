@@ -147,6 +147,8 @@
           on_finish: function(data) {
             console.log(data);
             var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
+            surveyInitialized = false;
+            sliders = [];
             jsPsych.setProgressBar(curr_progress_bar_value + (1/n_images));
           }
           
@@ -183,7 +185,7 @@
           xhr.open('POST', 'lib/save.php');
           xhr.setRequestHeader('Content-Type', 'application/json');
           xhr.onload = function() {
-            done(); // invoking done() causes experiment to progress to next trial.
+            done();
           };
           xhr.send(JSON.stringify({filedata: jsPsych.data.get().csv()}));
         }
@@ -194,26 +196,6 @@
     }
 
     init_survey();
-
-    // var getImages = {
-    //   type: jsPsychCallFunction,
-    //   async: true,
-    //   func: function(done){
-    //     console.log('getImages');
-    //     console.log(jsPsych.data.dataProperties);
-        
-    //   }
-    // }
-    // timeline.push(getImages);
-
-    
-
-    
-
-    
-
-    // https://www.jspsych.org/7.2/plugins/survey-multi-choice/
-
     
   </script>
 </html>
