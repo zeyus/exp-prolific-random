@@ -9,11 +9,11 @@ db_connect_mysqli($config);
 for ($i = 1; $i <= 3000; $i++) {
   $image_prompt = array(
     'times_rated' => rand(0, 10),
-    'image_type' => 'image',
+    'image_type' => 'dummy',
     'image_uri' => 'https://placeholder.pics/svg/800/DEDEDE/555555/Image ID: ' . $i,
   );
   print("Adding dummy image prompt id {$i}\n");
-  add_image_prompt($image_prompt);
+  add_image_prompt_dummy($image_prompt);
 }
 
 

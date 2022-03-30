@@ -1,37 +1,22 @@
-/* .jspsych-survey-multi-choice-question[data-name="image_creativity"] {
-  text-align: justify;
-  position: relative;
-}
 
 
-.jspsych-survey-multi-choice-question[data-name="image_creativity"]::before {
-  content: '';
+img.shape {
+  width: 360px;
+  height: 359px;
+  /* center the image */
+  margin: auto;
   display: block;
-  margin-top: -1.25em;
-}
-
-.jspsych-survey-multi-choice-question[data-name="image_creativity"]::after {
-
-  content: '';
-    display: inline-block;
-    width: 100%;
-}
-
-.jspsych-survey-multi-choice-question[data-name="image_creativity"] .survey-multi-choice {
-  margin-bottom:0;
-} */
-
-.jspsych-survey-multi-choice-question[data-name="image_creativity"] .jspsych-survey-multi-choice-option {
-  display: inline-block;
-  width: 20%;
-  position: relative;
-  top: 0.25em;
 }
 
 
+.sv_q {
+  min-height: 135px;
+  overflow: visible !important;
+}
 
-/* .jspsych-survey-multi-choice-question[data-name="image_creativity"]::after {
-  content: "";
+.noUi-tooltip {
+  display: none;
+}
+.noUi-active .noUi-tooltip {
   display: block;
-  clear: both;
-} */
+}

@@ -7,7 +7,7 @@
     <script src="js/nouislider.min.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-call-function@1.1.0"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey@0.1.1"></script>
+    <script src="js/plugin-survey.browser.min.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.0"></script>
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" />
     <link rel="stylesheet" href="https://unpkg.com/@jspsych/plugin-survey@0.1.1/css/survey.css">
@@ -16,62 +16,39 @@
   </head>
   <body></body>
   <script>
-    class sliderExtension {
-      constructor(jsPsych){
-        this.jsPsych = jsPsych;
-      }
-      initialize(params){
-        return new Promise((resolve, reject)=>{
-          console.log(params.demo); // will output 'value'
-
-          resolve(); // finish initialzing
-        })
-      }
-      on_start(params){
-        console.log(params); // outputs 'value' before the trial begins.
-      }
-      on_load(params){
-        console.log(params);
-        createSlider(params.sliders, this.jsPsych.getDisplayElement());
-        
-      }
-      on_finish(params){
-        return {
-          sliderSurvey: params.value
-        }
-      }
-    }
-    sliderExtension.info = {
-      name: 'sliderSurvey'
-    }
+    
     var jsPsych = initJsPsych({
       show_progress_bar: true,
       auto_update_progress_bar: false,
       on_finish: function() {
         window.location = prolificURL + prolificID;
       },
-      extensions: [
-        {type: sliderExtension, params: {demo: 'value'}},
-      ],
     });
 
     var createSlider = function(elId, wrapperEl) {
-      elId = '#' + elId;
+      elSelector = '#' + elId;
       console.log(elId);
-      var sliderRating = wrapperEl.querySelector(elId);
-      console.log(sliderRating);
+      var sliderRating = wrapperEl.querySelector(elSelector);
       noUiSlider.create(sliderRating, {
         start: [0],
         step: 1,
         range: {
           'min': [0],
           'max': [100]
+        },
+        tooltips: [{to: function (value) { return Math.round(value); }, from: function (value) {return value;} }],
+        pips: {
+          mode: 'count',
+          values: 5,
+          density: 1
         }
       });
-      var sliderRatingValueElement = wrapperEl.querySelector(elId + '-value');
+      // var sliderRatingValueElement = wrapperEl.querySelector(elSelector + '-value');
 
       sliderRating.noUiSlider.on('update', function (values, handle) {
-        sliderRatingValueElement.innerHTML = values[handle];
+        var val = Math.round(values[handle]);
+        // sliderRatingValueElement.innerHTML = val;
+        jsPsych.getCurrentTrial().data[elId] = val;
       });
 
     };
@@ -111,10 +88,10 @@
             pages: 
             [
               [
-                {type: "html", prompt: '<img src="' + prompt_images[i]['image_uri'] + '" style="width:100%; height:auto;">'},
-                {type: "html", prompt: '<div id="slider-rating"></div><span id="slider-rating-value"></span>'},
-                {type: "likert", prompt: 'How much do you like this image?',  likert_scale_min: 0, likert_scale_max: 10, required: true, name: "image_rating"},
-                {type: "likert", prompt: 'How creative is this image?', likert_scale_min: 0, likert_scale_max: 100, required: true, name: "image_creativity"},
+                {type: "html", prompt: '<img src="' + prompt_images[i]['image_uri'] + '" class="shape">'},
+                {type: "html", prompt: '<span>How creative do you think this image is?</span><div id="slider_creative" class="slider-response"></div>', name: "slider_creative"},
+                {type: "html", prompt: '<span>How certain are you this image represents something concrete?</span><div id="slider_abstract" class="slider-response"></div>', name: "slider_abstract"},
+                {type: "html", prompt: '<span>How symmetrical is this image?</span><div id="slider_symmetric" class="slider-response"></div>', name: "slider_symmetric"},
               ]
             ],
             data: {
@@ -127,17 +104,17 @@
           type: jsPsychSurvey,
           timeline: preambles,
           button_label_finish: "continue",
-          extensions: [
-            {type: sliderExtension, params: {sliders: 'slider-rating'}},
-          ],
-          on_load: function() {
-
-            
+          on_render_question_complete: function(sender, options) {
+            if (options.question.name.startsWith("slider_")) {
+              createSlider(options.question.name, options.htmlElement);
+            }
+            // createSlider('slider-rating', trial.DOM_reference);
+            // createSlider('slider-creativity', trial.DOM_reference);
           },
-          on_finish: function() {
+          on_finish: function(data) {
+            console.log(data);
             var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
             jsPsych.setProgressBar(curr_progress_bar_value + (1/n_images));
-            
           }
           
         }

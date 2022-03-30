@@ -74,10 +74,19 @@ function add_prolific_user($prolific_id) {
   return db_query_one("SELECT LAST_INSERT_ID() AS id");
 }
 
-function add_image_prompt($image_prompt) {
+function add_image_prompt_dummy($image_prompt) {
   $query = "INSERT INTO image_prompts (image_type, image_uri, times_rated) VALUES ('$image_prompt[image_type]', '$image_prompt[image_uri]', $image_prompt[times_rated])";
   db_query($query);
   return db_query_one("SELECT LAST_INSERT_ID() AS id");
 }
+
+function add_image_prompt($id, $image_uri) {
+  $query = "INSERT INTO image_prompts (id, image_type, image_uri, times_rated) VALUES ($id, 'shape', '$image_uri', 0) ON DUPLICATE KEY UPDATE image_type='shape', image_uri = '$image_uri', times_rated=0";
+  db_query($query);
+  return db_query_one("SELECT LAST_INSERT_ID() AS id");
+}
+
+
+
 
 ?>

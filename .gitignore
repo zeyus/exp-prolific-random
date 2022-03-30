@@ -1,4 +1,4 @@
 conf/*.json
 data/*.csv
 .vscode
-img/survey
+webroot/img/survey/*.png
