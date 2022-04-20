@@ -26,24 +26,113 @@
       },
     });
 
+    var slider_default = {
+      class: "slider-response",
+      tooltips: [{
+        to: function (value) {
+          return Math.round(value);
+        },
+        from: function (value) {
+          return value;
+        }
+      }],
+      range: {min: [0], max: [100]},
+      pips: {
+        mode: 'count',
+        values: 5,
+        density: 1
+      },
+      start: [50],
+      step: 1
+    };
+
+    var labels_abstract = {
+      0: '0 = certain that it is abstract',
+      50: '50 = uncertain',
+      100: '100 = certain that it is concrete'
+    };
+    var labels_abstract_values = {
+      
+    };
+    labels_abstract_values[labels_abstract[0]] = 0,
+    labels_abstract_values[labels_abstract[50]] = 50,
+    labels_abstract_values[labels_abstract[100]] = 100
+
+    var sliders = {
+      ordered: [
+        {
+          name: "slider_creative",
+          prompt: "How creative do you think this image is?"
+        },
+        {
+          name: "slider_abstract",
+          prompt: "How certain are you this image represents something concrete?",
+          pips: {
+            mode: 'count',
+            values: 3,
+            density: 1,
+            format: {
+              to: function (value) {
+                var intval = Math.round(value);
+                
+                if (labels_abstract[intval]) {
+                  return labels_abstract[intval];
+                } else {
+                  return intval;
+                }
+              },
+              from: function (value) {
+                if (labels_abstract_values[value]) {
+                  return labels_abstract_values[value];
+                } else {
+                  return value;
+                }
+              }
+            }
+          }
+        },
+        {
+          type: "html",
+          name: "slider_symmetric",
+          prompt: "How symmetrical is this image?"
+        },
+      ],
+      named: {}
+    };
+
+    var form_sliders = [];
+
+    for(i = 0; i < sliders.ordered.length; i++) {
+      sliders.named[sliders.ordered[i].name] = {
+        ...slider_default,
+        ...sliders.ordered[i]
+      };
+
+      form_sliders[i] = {
+        type: "html",
+        prompt: '<span>' + sliders.ordered[i].prompt + '</span><div id="' + sliders.ordered[i].name + '" class="' + slider_default.class + '"></div>',
+        name: sliders.ordered[i].name
+      };
+
+    }
+
     var createSlider = function(elId, wrapperEl, onChange) {
+      var slider_class = sliders.named[elId].class;
+      var slider_tooltips = sliders.named[elId].tooltips;
+      var slider_range = sliders.named[elId].range;
+      var slider_pips = sliders.named[elId].pips;
+      var slider_start = sliders.named[elId].start;
+      var slider_step = sliders.named[elId].step;
       elSelector = '#' + elId;
 
       var sliderRating = wrapperEl.querySelector(elSelector);
 
       noUiSlider.create(sliderRating, {
-        start: [50],
-        step: 1,
-        range: {
-          'min': [0],
-          'max': [100]
-        },
-        tooltips: [{to: function (value) { return Math.round(value); }, from: function (value) {return value;} }],
-        pips: {
-          mode: 'count',
-          values: 5,
-          density: 1
-        }
+        start: slider_start,
+        step: slider_step,
+        range: slider_range,
+        tooltips: slider_tooltips,
+        pips: slider_pips
       });
 
       sliderRating.noUiSlider.on('update', function (values, handle) {
@@ -95,9 +184,7 @@
             [
               [
                 {type: "html", prompt: '<img src="' + prompt_images[i]['image_uri'] + '" class="shape">'},
-                {type: "html", prompt: '<span>How creative do you think this image is?</span><div id="slider_creative" class="slider-response"></div>', name: "slider_creative"},
-                {type: "html", prompt: '<span>How certain are you this image represents something concrete?</span><div id="slider_abstract" class="slider-response"></div>', name: "slider_abstract"},
-                {type: "html", prompt: '<span>How symmetrical is this image?</span><div id="slider_symmetric" class="slider-response"></div>', name: "slider_symmetric"},
+                ...form_sliders
               ]
             ],
             data: {
