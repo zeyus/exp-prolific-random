@@ -10,7 +10,8 @@
     <script src="js/plugin-survey.browser.min.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.0"></script>
     <link rel="stylesheet" href="https://unpkg.com/jspsych@7.2.1/css/jspsych.css" />
-    <link rel="stylesheet" href="https://unpkg.com/@jspsych/plugin-survey@0.1.1/css/survey.css">
+    <link rel="stylesheet" href="css/survey.css">
+    <link rel="stylesheet" href="css/plugin-survey.css">
     <link href="css/nouislider.min.css" rel="stylesheet" type="text/css" />
     <link href="css/prolific.css" rel="stylesheet" type="text/css" />
   </head>
@@ -46,10 +47,12 @@
       step: 1
     };
 
+    var slider_prefix = "slider_";
+
     var labels_abstract = {
-      0: '0 = certain that it is abstract',
-      50: '50 = uncertain',
-      100: '100 = certain that it is concrete'
+      0: '0 (certain that it is abstract)',
+      50: '50 (uncertain)',
+      100: '100 (certain that it is concrete)'
     };
     var labels_abstract_values = {
       
@@ -61,11 +64,11 @@
     var sliders = {
       ordered: [
         {
-          name: "slider_creative",
+          name: slider_prefix + "creative",
           prompt: "How creative do you think this image is?"
         },
         {
-          name: "slider_abstract",
+          name: slider_prefix + "abstract",
           prompt: "How certain are you this image represents something concrete?",
           pips: {
             mode: 'count',
@@ -93,7 +96,7 @@
         },
         {
           type: "html",
-          name: "slider_symmetric",
+          name: slider_prefix + "symmetric",
           prompt: "How symmetrical is this image?"
         },
       ],
@@ -193,49 +196,67 @@
           });
         }
 
-        var sliders = [];
+        var slider_els = [];
         // to prevent the event handler from being called twice
         var surveyInitialized = false;
+        var questionsInitialized = false;
+        var completedButton;
+        var completedButtonClass;
 
         var image_trials = {
           type: jsPsychSurvey,
           timeline: preambles,
-          button_label_finish: "continue",
+          button_label_finish: "Continue",
+          on_render_survey_complete: function(sender, options) {
+            // initialize the survey
+            console.log(sender);
+            if (!surveyInitialized) {
+              completedButtonClass = sender.cssValue.navigation.complete;
+              console.log(options.htmlElement);
+              completedButton = sender.renderedElement.getElementsByClassName(completedButtonClass)[0];
+              console.log(completedButton);
+              completedButton.disabled = true;
+            }
+          },
           on_render_question_complete: function(sender, options) {
             // only deal with sliders
-            if (options.question.name.startsWith("slider_")) {
-              if (!surveyInitialized) {
+            if (options.question.name.startsWith(slider_prefix)) {
+              if (!questionsInitialized) {
                 // add a onCompleting event handler to prevent survey from submitting
                 // if any sliders have not yet been changed (or at least clicked).
                 sender.onCompleting.add(function (sender, options) {
-                  if(sliders.length > 0) {
+                  if(slider_els.length > 0) {
                     options.allowComplete = false;
                   }
                 });
-                surveyInitialized = true;
+                questionsInitialized = true;
               }
 
               // create slider
               var slider = createSlider(options.question.name, options.htmlElement, function(curSlider) {
                 // on change, remove it from the list of sliders
-                for (var i = 0; i < sliders.length; i++) {
-                  if (sliders[i] == curSlider) {
-                    sliders.splice(i, 1);
+                for (var i = 0; i < slider_els.length; i++) {
+                  if (slider_els[i] == curSlider) {
+                    slider_els.splice(i, 1);
                     // deregister the slider's onChange event handler.
                     curSlider.noUiSlider.off('change');
                     break;
                   }
                 }
+                if (slider_els.length == 0) {
+                  completedButton.disabled = false;
+                }
               });
               // add the slider to the list of sliders
-              sliders.push(slider);
+              slider_els.push(slider);
             }
           },
           on_finish: function(data) {
             console.log(data);
             var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
             surveyInitialized = false;
-            sliders = [];
+            questionsInitialized = false;
+            slider_els = [];
             jsPsych.setProgressBar(curr_progress_bar_value + (1/n_images));
           }
           

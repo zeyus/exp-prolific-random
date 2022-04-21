@@ -24,3 +24,10 @@ img.shape {
 .sv_q_erbox {
   display: none !important;
 }
+
+/* input button with disabled attribute */
+input[type=button][disabled] {
+  background-color: #eee !important;
+  color: #aaa;
+  cursor: not-allowed;
+}
