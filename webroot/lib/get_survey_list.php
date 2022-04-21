@@ -1,6 +1,8 @@
 <?php
+session_start();
 require('inc/config.php');
 require('inc/db.php');
+require('inc/user.php');
 
 $config = get_config();
 
@@ -20,18 +22,24 @@ if(!$data) {
   die('Invalid json data.');
 }
 
+// $prolific_study_id = 'xxxxx'; // validate study id sent
+
 if(!isset($data['subject_id']) || !isset($data['session_id']) || !isset($data['study_id'])) {
   header('HTTP/1.1 400 Bad Request');
   die('Invalid json data.');
 }
 
-// no logic yet, just return random 50
-$image_prompt_list = get_all_image_prompts();
+$user = new ProlificUser($data['subject_id'], $data['session_id'], $data['study_id']);
+
+
+$image_prompt_list = prepare_images($user);
 
 shuffle($image_prompt_list);
 $image_promts = array_slice($image_prompt_list, 0, 5);
 
 echo json_encode($image_promts);
+
+$_SESSION['user'] = $user;
 exit();
 
 

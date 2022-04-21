@@ -1,6 +1,6 @@
 <?php
 $_mysqli = null;
-function db_connect_mysqli($config = null) {
+function db_connect_mysqli(&$config = null) {
   global $_mysqli;
   if (isset($_mysqli) && !empty($_mysqli)) {
     return $_mysqli;
@@ -23,11 +23,14 @@ function db_connect_mysqli($config = null) {
 }
 
 
-function db_query($query) {
+function db_query($query, $insert = false) {
   $mysqli = db_connect_mysqli();
   $result = $mysqli->query($query);
   if (!$result) {
     throw new Exception("MySQL error: " . $mysqli->error);
+  }
+  if ($insert) {
+    return $mysqli->insert_id;
   }
   return $result;
 }
@@ -59,8 +62,8 @@ function get_images_for_user($user_id) {
   return db_query_all($query);
 }
 
-function get_user_id($prolific_id) {
-  $query = "SELECT id FROM survey_users WHERE prolific_id = '$prolific_id'";
+function get_user_id(ProlificUser &$user) {
+  $query = "SELECT id FROM survey_users WHERE prolific_id = '{$user->get_prolific_subject_id()}' AND session_id = '{$user->get_prolific_session_id()}' AND study_id = '{$user->get_prolific_study_id()}'";
   $row = db_query_one($query);
   if (!$row) {
     return false;
@@ -68,22 +71,20 @@ function get_user_id($prolific_id) {
   return $row['id'];
 }
 
-function add_prolific_user($prolific_id) {
-  $query = "INSERT INTO survey_users (prolific_id, start_time) VALUES ('$prolific_id', NOW())";
-  db_query($query);
-  return db_query_one("SELECT LAST_INSERT_ID() AS id");
+function add_prolific_user(ProlificUser &$user): int {
+  $query = "INSERT INTO survey_users (prolific_id, session_id, study_id, start_time) VALUES ('$prolific_id', '$prolific_session_id', '$prolific_study_id', NOW())";
+  return db_query($query, true);
 }
 
 function add_image_prompt_dummy($image_prompt) {
   $query = "INSERT INTO image_prompts (image_type, image_uri, times_rated) VALUES ('$image_prompt[image_type]', '$image_prompt[image_uri]', $image_prompt[times_rated])";
-  db_query($query);
-  return db_query_one("SELECT LAST_INSERT_ID() AS id");
+  db_query($query, true);
+  return db_query($query, true);
 }
 
 function add_image_prompt($id, $image_uri) {
   $query = "INSERT INTO image_prompts (id, image_type, image_uri, times_rated) VALUES ($id, 'shape', '$image_uri', 0) ON DUPLICATE KEY UPDATE image_type='shape', image_uri = '$image_uri', times_rated=0";
-  db_query($query);
-  return db_query_one("SELECT LAST_INSERT_ID() AS id");
+  return db_query($query, true);
 }
 
 

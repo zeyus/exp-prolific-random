@@ -1,7 +1,7 @@
 <?php
+declare(strict_types=1);
 
-
-function get_config() {
+function get_config(): array {
   global $_conf;
   if (isset($_conf) && !empty($_conf)) {
     return $_conf;
