@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>My experiment</title>
+    <title>Image ratings</title>
     <script src="https://unpkg.com/jspsych@7.2.1"></script>
     <script src="js/conf.js"></script>
     <script src="js/nouislider.min.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-call-function@1.1.0"></script>
     <script src="js/plugin-survey.browser.min.js"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.0"></script>
@@ -252,15 +253,30 @@
             }
           },
           on_finish: function(data) {
-            console.log(data);
             var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
             surveyInitialized = false;
             questionsInitialized = false;
             slider_els = [];
-            jsPsych.setProgressBar(curr_progress_bar_value + (1/n_images));
+            jsPsych.setProgressBar(curr_progress_bar_value + (1/(n_images + 1)));
           }
           
         }
+        const welcome_page = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<h2>Welcome to this study...</h2><div>In this survey you will be presented with '+ n_images +' images created by participants in a previous study.</div>' +
+          '<div>This images will have the same number of blocks arranged in different ways, you can see some examples below.</div>' +
+          '<img src="img/example.png" class="example">' +
+          '<div>Each image will be acommpanied by three questions...</div>',
+          choices: ['Continue'],
+          on_start: function() {
+            jsPsych.setProgressBar(0);
+          },
+          on_finish: function(data) {
+            var curr_progress_bar_value = jsPsych.getProgressBarCompleted();
+            jsPsych.setProgressBar(curr_progress_bar_value + (1/(n_images + 1)));
+          }
+        }
+        timeline.push(welcome_page);
         timeline.push(image_trials);
         
     };
