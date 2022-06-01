@@ -2,8 +2,8 @@
 declare(strict_types=1);
 $current_dir = dirname(__FILE__);
 require_once($current_dir . '/config.php');
-require_once($current_dir . './db.php');
-require_once($current_dir . './user.php');
+require_once($current_dir . '/db.php');
+require_once($current_dir . '/user.php');
 
 
 
