@@ -27,6 +27,13 @@
       },
     });
 
+    var save_response = function(data) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'lib/save_response.php');
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.send(JSON.stringify(data));
+    }
+
     var slider_default = {
       class: "slider-response",
       tooltips: [{
@@ -171,7 +178,7 @@
       if (prompt_images.length < 1) {
           const error_page = {
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: 'Something went wrong.',
+            stimulus: 'You have already rated all the images, thank you.',
             on_start: function() {
               jsPsych.setProgressBar(1);
             }
@@ -191,7 +198,8 @@
               ]
             ],
             data: {
-              image_id: prompt_images[i]['id'],
+              prompt_id: prompt_images[i]['prompt_id'],
+              user_prompt_id: prompt_images[i]['user_prompt_id'],
             },
           });
         }
@@ -254,6 +262,7 @@
             questionsInitialized = false;
             slider_els = [];
             jsPsych.setProgressBar(curr_progress_bar_value + (1/(n_images + 1)));
+            save_response(data);
           }
           
         }
@@ -289,6 +298,7 @@
         fetch('lib/get_survey_list.php', options)
         .then(res => res.json())
         .then(res => {
+          res.length > 0 ? addImageTrials(res) : addImageTrials([]);
           addImageTrials(res).then(runTrials);
         }).catch(err => {
           addImageTrials([]).then(runTrials);

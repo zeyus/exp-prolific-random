@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 class ProlificUser {
-  private final string $prolific_subject_id;
-  private final string $prolific_session_id;
-  private final string $prolific_study_id;
+  private string $prolific_subject_id;
+  private string $prolific_session_id;
+  private string $prolific_study_id;
 
-  private final ?int $db_user_id;
-  private final array $image_list = [];
+  private int $num_images = 50;
+
+  private ?int $db_user_id;
+  private array $image_list = [];
 
   public function __construct(string $prolific_subject_id, string $prolific_session_id, string $prolific_study_id) {
     $this->set_prolific_subject_id($prolific_subject_id);
@@ -35,6 +37,9 @@ class ProlificUser {
   }
 
   public function get_db_user_id(): int {
+    if ($this->db_user_id === null) {
+      throw new Exception('User has not been created yet.');
+    }
     return $this->db_user_id;
   }
 
@@ -42,16 +47,17 @@ class ProlificUser {
     return $this->image_list;
   }
 
-  public function add_image($id, $uri): void {
+  public function add_image(int $prompt_id, int $user_prompt_id, string $image_uri): void {
     $this->image_list[] = [
-      'id' => $id,
-      'uri' => $uri,
+      'prompt_id' => $prompt_id,
+      'user_prompt_id' => $user_prompt_id,
+      'image_uri' => $image_uri,
     ];
   }
 
-  public function add_images($images): void {
+  public function add_images(array $images): void {
     foreach ($images as $image) {
-      $this->add_image($image['id'], $image['uri']);
+      $this->add_image((int) $image['prompt_id'], (int) $image['user_prompt_id'], $image['image_uri']);
     }
   }
 
@@ -84,7 +90,13 @@ class ProlificUser {
     }
   }
 
-
+  public function get_num_images(): int {
+    return $this->num_images;
+  }
+  
+  public function set_num_images(int $num_images): void {
+    $this->num_images = $num_images;
+  }
   
 }
 

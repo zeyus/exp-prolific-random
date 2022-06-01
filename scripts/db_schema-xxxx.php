@@ -26,7 +26,7 @@ $schema = array(
   /* image_prompts: images to be displayed in the survey */
   "CREATE TABLE IF NOT EXISTS `image_prompts` (`id` int(11) NOT NULL AUTO_INCREMENT, `image_uri` varchar(255) NOT NULL, `image_type` varchar(255) NOT NULL, `times_rated` int(11) NULL, PRIMARY KEY (`id`), INDEX (`times_rated`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
   /* image_prompts_by_user: linking table with datestamp and image_prompts */
-  "CREATE TABLE IF NOT EXISTS `image_prompts_by_user` (`id` int(11) NOT NULL AUTO_INCREMENT, `survey_user_id` int(11) NOT NULL, `image_prompt_id` int(11) NOT NULL, `created` datetime NOT NULL, `rated` datetime NULL, `rating_creative` int(11) NULL, `rating_abstract` int(11) NULL, `rating_symmetry` int(11) NULL, PRIMARY KEY (`id`), INDEX(`survey_user_id`, `image_prompt_id`, `rated`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+  "CREATE TABLE IF NOT EXISTS `image_prompts_by_user` (`id` int(11) NOT NULL AUTO_INCREMENT, `survey_user_id` int(11) NOT NULL, `image_prompt_id` int(11) NOT NULL, `created` datetime NOT NULL, `rated` datetime NULL, PRIMARY KEY (`id`), INDEX(`survey_user_id`, `image_prompt_id`, `rated`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
 );
 
 // connect to mysql

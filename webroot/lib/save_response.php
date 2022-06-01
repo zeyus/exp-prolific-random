@@ -3,7 +3,17 @@ require_once('inc/config.php');
 require_once('inc/db.php');
 require_once('inc/user.php');
 require_once('inc/util.php');
+
+
 session_start();
+
+if(!isset($_SESSION['user'])) {
+  header('HTTP/1.1 400 Bad Request');
+  die('Invalid request method.');
+}
+
+$user = $_SESSION['user'];
+
 $config = get_config();
 
 db_connect_mysqli($config);
@@ -22,29 +32,14 @@ if(!$data) {
   die('Invalid json data.');
 }
 
-// $prolific_study_id = 'xxxxx'; // validate study id sent
-
-if(!isset($data['subject_id']) || !isset($data['session_id']) || !isset($data['study_id'])) {
+if(!isset($data['slider_creative']) ||
+  !isset($data['slider_abstract']) ||
+  !isset($data['slider_symmetric']) ||
+  !isset($data['prompt_id']) ||
+  !isset($data['user_prompt_id'])) {
   header('HTTP/1.1 400 Bad Request');
   die('Invalid json data.');
 }
-// create and setup user
-$user = new ProlificUser($data['subject_id'], $data['session_id'], $data['study_id']);
-// set the number of images to show
-$user->set_num_images(50);
-
-prepare_images($user);
-
-$_SESSION['user'] = $user;
-
-$image_prompts = $user->get_image_list();
-
-// shuffle($image_prompt_list);
-// $image_promts = array_slice($image_prompt_list, 0, 5);
-
-echo json_encode($image_prompts);
-
-exit();
 
 
-?>
+add_image_ratings_for_user($user, $data['prompt_id'], $data['user_prompt_id'], $data['slider_creative'], $data['slider_abstract'], $data['slider_symmetric']);
