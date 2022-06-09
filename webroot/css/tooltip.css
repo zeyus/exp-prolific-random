@@ -1,0 +1,15 @@
+/*
+ * Tooltip.js styles
+ */
+
+ .tooltip-js {
+	position:absolute;
+	background:#DB2A64;
+	color:#ffffff;
+	padding:8px;
+	z-index:999;
+}
+
+.tooltip-js.alt-tooltip {
+	background:#490B22;
+}

@@ -31,3 +31,22 @@ input[type=button][disabled] {
   color: #aaa;
   cursor: not-allowed;
 }
+
+.rating-help {
+  display: inline-block;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: center;
+  width: 2.2ex;
+  height: 2.2ex;
+  font-size: 2ex;
+  line-height: 2ex;
+  border-radius: 2ex;
+  margin-left: 4px;
+  padding: 0;
+  color: white;
+  background: grey;
+  border: none;
+  text-decoration: none;
+  cursor: help;
+}
