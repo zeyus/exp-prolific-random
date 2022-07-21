@@ -50,3 +50,51 @@ input[type=button][disabled] {
   text-decoration: none;
   cursor: help;
 }
+
+#consent_page {
+  text-align: left;
+}
+
+ol.custom-list-marker {
+  counter-reset: list;
+}
+
+ol.custom-list-marker li {
+  list-style: none;
+  counter-increment: list;
+}
+
+ol.custom-list-roman > li::marker {
+  content: counter(list, lower-roman) ")\a0";
+}
+
+ol.custom-list-uc-alpha > li::marker {
+  content: counter(list, upper-alpha) ".\a0";
+}
+
+ol.custom-list-numeric-par > li::marker {
+  content: counter(list, decimal) ")\a0";
+}
+
+ol.list-bold-prefix > li::marker {
+  font-weight: bold;
+}
+
+img.example {
+  text-align: center;
+  display: block;
+  margin: 2em auto;
+}
+
+/* @counter-style lc-roman-list-style {
+  system: extends lower-roman;
+  suffix: ') ';
+}
+
+ol.custom-list-roman {
+  list-style: lc-roman-list-style;
+}
+
+ol.custom-list-uc-alpha {
+  list-style: upper-alpha;
+} */

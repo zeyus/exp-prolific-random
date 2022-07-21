@@ -271,13 +271,27 @@
           }
           
         }
+        const consent_page = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: consent_text,
+          choices: ['Next'],
+          on_start: function() {
+            jsPsych.setProgressBar(0);
+          }
+        }
         const welcome_page = {
           type: jsPsychHtmlButtonResponse,
-          stimulus: '<h2>Welcome to this study...</h2><div>In this survey you will be presented with '+ n_images +' images created by participants in a previous study.</div>' +
-          '<div>This images will have the same number of blocks arranged in different ways, you can see some examples below.</div>' +
+          stimulus: '<div style="text-align: left;"><h2>Task instructions</h2><div>In the following, you will be presented with '+ n_images +' simple figures one-by-one. All figures consist of 10 small green squares on black background (see some examples of figures below).</div>' +
           '<img src="img/example.png" class="example">' +
-          '<div>Each image will be accompanied by three questions...</div>',
-          choices: ['Continue'],
+          '<div>Your task is, for each figure, to rate them for three different properties. Please read through the explanation of the three rating scales very carefully until you feel you have a good understanding of what you are supposed to do.</div>' +
+          '<ol class="custom-list-marker custom-list-numeric-par">' +
+          '<li>First, you will rate <b>how creative you find the figure</b> on a scale from 1 to 100, where 1 is <u>not creative</u> and 100 is <u>very creative</u>. Remember that all figures are produced from the same 10 green tiles and have to stay connected in one shape. The relative creativity of a figure should be assessed from this constraint. A creative figure could be one that you find <b>surprising and interesting</b> relative to other figures.</li>' +
+          '<li>Next, you will rate their concreteness/abstractness, that is <b>how likely you find the figure to be intended to resemble something</b>. Some figures might be made purposefully to look like something particular, for instance an animal, an airplane, or a letter. Others might be abstract shapes that are not intended to look like something particular, but are interesting on their own, for instance a strange geometrical shape. The scale reflects how certain you are if the figure is one or the other. The middle value 50 indicates that you are <u>very uncertain</u>. 1 indicates that you are <u>certain that the shape is abstract</u> and does not resemble anything particular. 100 indicates that you are <u>certain that the figure resembles something concrete</u> that you could potentially name (like e.g. an object, animal or letter).</li>' +
+          '<li>Last, you will rate <b>how symmetric you find the figure</b> on a scale from 1 to 100, where 1 indicates that the figure is not symmetric at all, and 100 means that it is perfectly symmetric. Notice, that symmetry can be relative to one or more symmetry lines. A figure can be the perfect mirror of itself either horizontally, vertically or diagonally. It can also have more than one symmetry line. You can also have figures that show imperfect symmetry (close to be symmetric) or that have no symmetry at all.</li>' +
+          '</ol>' +
+          '<div>The rating is self-paced. That is, you can just all the time you want to inspect the figure before you make a rating on each of the three scales (creativity, concreteness and symmetry). If you would like to return to the explanations of the rating scales later during the task, you can hover over the <span class="rating-help">?</span> symbol next to each of the rating scales. </div>' +
+          '</div>',
+          choices: ['Next'],
           on_start: function() {
             jsPsych.setProgressBar(0);
           },
@@ -286,6 +300,7 @@
             jsPsych.setProgressBar(curr_progress_bar_value + (1/(n_images + 1)));
           }
         }
+        timeline.push(consent_page);
         timeline.push(welcome_page);
         timeline.push(image_trials);
         
