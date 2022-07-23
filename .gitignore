@@ -3,3 +3,5 @@ data/*.csv
 .vscode
 webroot/img/survey/*.png
 .DS_Store
+vendor/
+bin/

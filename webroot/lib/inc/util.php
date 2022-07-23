@@ -29,8 +29,7 @@ function get_image_list(ProlificUser &$user): void {
   db_connect_mysqli($config);
   
   $image_list = get_images_for_user($user->get_db_user_id());
-  // if there's no images, it means it's a new user
-  
+  // if there are no images, it means this is a new user
   if (empty($image_list)) {
     $image_list = prepare_images_for_user($user);
   } else {
@@ -42,7 +41,18 @@ function get_image_list(ProlificUser &$user): void {
     }
   }
   // this could still be empty, but that means the user has already rated all their images
+  if (empty($image_list)) {
+    return;
+  }
+  
   $user->add_images($image_list);
+
+  // add the attention check images
+  $n_attention_checks = $user->get_num_attention_checks();
+  if ($n_attention_checks > 0) {
+    $check_images = get_check_images($user->get_prompt_ids(), $n_attention_checks * $user->get_num_check_images());
+    $user->add_check_images($check_images);
+  }
 }
 
 

@@ -32,14 +32,29 @@ if(!$data) {
   die('Invalid json data.');
 }
 
-if(!isset($data['slider_creative']) ||
-  !isset($data['slider_abstract']) ||
-  !isset($data['slider_symmetric']) ||
-  !isset($data['prompt_id']) ||
-  !isset($data['user_prompt_id'])) {
+$validated = false;
+if(isset($data['slider_creative']) &&
+  isset($data['slider_abstract']) &&
+  isset($data['slider_symmetric']) &&
+  isset($data['prompt_id']) &&
+  isset($data['user_prompt_id']) &&
+  isset($data['rt'])) {
+  $validated = true;
+  add_image_ratings_for_user($user, (int)$data['prompt_id'], (int)$data['user_prompt_id'], (int)$data['slider_creative'], (int)$data['slider_abstract'], (int)$data['slider_symmetric'], (int)$data['rt']);
+}
+
+if(isset($data['prompt_id']) &&
+  isset($data['check_prompt_ids']) &&
+  is_array($data['check_prompt_ids']) &&
+  isset($data['check_response_id']) &&
+  isset($data['rt'])) {
+  $validated = true;
+  // convert all check_prompt_ids to ints
+  $check_prompt_ids = array_map('intval', $data['check_prompt_ids']);
+  add_attention_check_response_for_user($user, (int)$data['prompt_id'], $check_prompt_ids, (int)$data['check_response_id'], (int)$data['rt']);
+}
+
+if(!$validated) {
   header('HTTP/1.1 400 Bad Request');
   die('Invalid json data.');
 }
-
-
-add_image_ratings_for_user($user, $data['prompt_id'], $data['user_prompt_id'], $data['slider_creative'], $data['slider_abstract'], $data['slider_symmetric']);

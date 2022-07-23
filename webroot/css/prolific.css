@@ -8,10 +8,36 @@ img.shape {
   display: block;
 }
 
+div#check-options-error {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+}
+
+.check-option {
+  float: left;
+}
+
+.check-option-input {
+  text-align: center;
+}
+
+.check-option-image, img.shape-check {
+  cursor: pointer;
+}
+
 
 .sv_q {
   min-height: 135px;
   overflow: visible !important;
+}
+
+.slider-response {
+  margin-top: 0.5em;
+}
+
+.slider-response .noUi-value {
+  color: black;
 }
 
 .noUi-tooltip {
@@ -29,7 +55,11 @@ img.shape {
 input[type=button][disabled] {
   background-color: #eee !important;
   color: #aaa;
-  cursor: not-allowed;
+  cursor: not-allowed !important;
+}
+
+input[type=button].sv_complete_btn {
+  cursor: pointer;
 }
 
 .rating-help {
@@ -40,7 +70,7 @@ input[type=button][disabled] {
   width: 2.2ex;
   height: 2.2ex;
   font-size: 2ex;
-  line-height: 2ex;
+  line-height: 2.2ex;
   border-radius: 2ex;
   margin-left: 4px;
   padding: 0;
@@ -98,3 +128,9 @@ ol.custom-list-roman {
 ol.custom-list-uc-alpha {
   list-style: upper-alpha;
 } */
+
+
+.jspsych-html-button-response-button {
+  margin-top: 2em !important;
+  margin-bottom: 2em !important;
+}

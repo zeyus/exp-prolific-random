@@ -58,7 +58,7 @@ function get_all_image_prompts(int $limit = null): array {
   if ($limit) {
     $strLimit = " LIMIT $limit";
   }
-  $query = "SELECT *,id as prompt_id FROM image_prompts ORDER BY times_rated ASC, RAND()$strLimit";
+  $query = "SELECT id as prompt_id FROM image_prompts ORDER BY times_prepared ASC, times_rated ASC, RAND()$strLimit";
   return db_query_all($query);
 }
 
@@ -67,22 +67,37 @@ function get_images_for_user(int $user_id): array {
   return db_query_all($query);
 }
 
+function get_check_images(array $exclude, int $limit): array {
+  $query = "SELECT id as prompt_id, image_uri FROM image_prompts WHERE id NOT IN (" . implode(',', $exclude) . ") ORDER BY RAND() LIMIT $limit";
+  return db_query_all($query);
+}
+
 function add_images_for_user(ProlificUser &$user, array $images): void {
   $user_id = $user->get_db_user_id();
   $query = "INSERT INTO image_prompts_by_user (survey_user_id, image_prompt_id, created) VALUES ";
   $values = [];
+  $image_ids = [];
   foreach ($images as $image) {
     $values[] = "('{$user_id}', '{$image['prompt_id']}', NOW())";
+    $image_ids[] = $image['prompt_id'];
   }
   $query .= implode(',', $values);
   db_query($query, true);
+  // now update times_prepared for the added images
+  $query = "UPDATE image_prompts SET times_prepared = times_prepared + 1 WHERE id IN (" . implode(',', $image_ids) . ")";
+  db_query($query);
 }
 
-function add_image_ratings_for_user(ProlificUser &$user, int $prompt_id, int $user_prompt_id, int $creative, int $abstract, int $symmetry) {
-  $query = "UPDATE image_prompts_by_user SET rated = NOW(), rating_creative = {$creative}, rating_abstract = {$abstract}, rating_symmetry = {$symmetry} WHERE survey_user_id = {$user->get_db_user_id()} AND id = {$user_prompt_id} AND image_prompt_id = {$prompt_id}";
+function add_image_ratings_for_user(ProlificUser &$user, int $prompt_id, int $user_prompt_id, int $creative, int $abstract, int $symmetry, int $rt) {
+  $query = "UPDATE image_prompts_by_user SET rated = NOW(), rating_creative = {$creative}, rating_abstract = {$abstract}, rating_symmetry = {$symmetry}, rt = {$rt} WHERE survey_user_id = {$user->get_db_user_id()} AND id = {$user_prompt_id} AND image_prompt_id = {$prompt_id}";
   db_query($query);
   $query = "UPDATE image_prompts SET times_rated = times_rated + 1 WHERE id = {$prompt_id}";
   db_query($query);
+}
+
+function add_attention_check_response_for_user($user, int $correct_response, array $options, int $response, int $rt): void {
+  $query = "INSERT INTO attention_check_responses (survey_user_id, correct_response, options, response, created, rt) VALUES ('{$user->get_db_user_id()}', '{$correct_response}', '" . implode(',', $options) . "', '{$response}', NOW(), '{$rt}')";
+  db_query($query, true);
 }
 
 function prepare_images_for_user(ProlificUser &$user): array {

@@ -31,18 +31,27 @@ if(!isset($data['subject_id']) || !isset($data['session_id']) || !isset($data['s
 // create and setup user
 $user = new ProlificUser($data['subject_id'], $data['session_id'], $data['study_id']);
 // set the number of images to show
-$user->set_num_images(50);
+$user->set_num_images(60);
+// how many trials before an attention check?
+$user->set_attention_checks_every(10);
+// how many images per attention check?
+$user->set_num_check_images(2);
 
 prepare_images($user);
 
 $_SESSION['user'] = $user;
 
 $image_prompts = $user->get_image_list();
+$attention_checks = $user->get_attention_check_images();
 
 // shuffle($image_prompt_list);
 // $image_promts = array_slice($image_prompt_list, 0, 5);
-
-echo json_encode($image_prompts);
+header('Content-Type: application/json');
+echo json_encode([
+  $image_prompts,
+  $attention_checks,
+  $user->get_attention_checks_every(),
+]);
 
 exit();
 

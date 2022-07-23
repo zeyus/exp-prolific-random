@@ -24,9 +24,11 @@ $schema = array(
   /* prolific users to get unique results */
   "CREATE TABLE IF NOT EXISTS `survey_users` (`id` int(11) NOT NULL AUTO_INCREMENT, `prolific_id` varchar(255) NOT NULL, `session_id` varchar(255) NOT NULL, `study_id` varchar(255) NOT NULL, `start_time` datetime NOT NULL, `end_time` datetime NULL, PRIMARY KEY (`id`), INDEX (`prolific_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
   /* image_prompts: images to be displayed in the survey */
-  "CREATE TABLE IF NOT EXISTS `image_prompts` (`id` int(11) NOT NULL AUTO_INCREMENT, `image_uri` varchar(255) NOT NULL, `image_type` varchar(255) NOT NULL, `times_rated` int(11) NULL, PRIMARY KEY (`id`), INDEX (`times_rated`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
+  "CREATE TABLE IF NOT EXISTS `image_prompts` (`id` int(11) NOT NULL AUTO_INCREMENT, `image_uri` varchar(255) NOT NULL, `image_type` varchar(255) NOT NULL, `times_rated` int(11) NOT NULL DEFAULT 0, `times_prepared` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`id`), INDEX (`times_rated`), INDEX (`times_prepared`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
   /* image_prompts_by_user: linking table with datestamp and image_prompts */
-  "CREATE TABLE IF NOT EXISTS `image_prompts_by_user` (`id` int(11) NOT NULL AUTO_INCREMENT, `survey_user_id` int(11) NOT NULL, `image_prompt_id` int(11) NOT NULL, `created` datetime NOT NULL, `rated` datetime NULL, `rating_creative` int(11) NULL, `rating_abstract` int(11) NULL, `rating_symmetry` int(11) NULL, PRIMARY KEY (`id`), INDEX(`survey_user_id`, `image_prompt_id`, `rated`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+  "CREATE TABLE IF NOT EXISTS `image_prompts_by_user` (`id` int(11) NOT NULL AUTO_INCREMENT, `survey_user_id` int(11) NOT NULL, `image_prompt_id` int(11) NOT NULL, `created` datetime NOT NULL, `rated` datetime NULL, `rating_creative` int(11) NULL, `rating_abstract` int(11) NULL, `rating_symmetry` int(11) NULL, `rt` int(11) NULL, PRIMARY KEY (`id`), INDEX(`survey_user_id`, `image_prompt_id`, `rated`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
+  /* attention_checks: just storage for responses to attention checks */
+  "CREATE TABLE IF NOT EXISTS `attention_check_responses` (`id` int(11) NOT NULL AUTO_INCREMENT, `survey_user_id` int(11) NOT NULL, `created` datetime NOT NULL, `response` int(11) NOT NULL, `correct_response` int(11) NOT NULL, `options` varchar(255) NOT NULL, `rt` int(11) NOT NULL, PRIMARY KEY (`id`), INDEX(`survey_user_id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;",
 );
 
 // connect to mysql
