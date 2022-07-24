@@ -14,6 +14,8 @@ if(!isset($config['report_pw']) || empty($config['report_pw'])) {
   die('Invalid request method.');
 }
 
+header('Cache-Control: no-cache, no-store, must-revalidate');
+
 $content = '';
 if((!isset($_SESSION['user']) || $_SESSION['user'] !== 'report') && !isset($_POST['password'])) {
   $content = file_get_contents('./login.html');
