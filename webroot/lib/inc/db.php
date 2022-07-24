@@ -131,6 +131,14 @@ function add_image_prompt(int $id, string $image_uri) {
   return db_query($query, true);
 }
 
+function db_get_rating() {
+  $query = "SELECT image_prompts.id as prompt_id, image_prompts.times_prepared as times_prepared, image_prompts.times_rated as times_rated, AVG(image_prompts_by_user.rt) as avg_rt, AVG(image_prompts_by_user.rating_creative) as avg_rating_creative, AVG(image_prompts_by_user.rating_abstract) as avg_rating_abstract, AVG(image_prompts_by_user.rating_symmetry) as avg_rating_symmetry FROM image_prompts INNER JOIN image_prompts_by_user ON image_prompts.id=image_prompts_by_user.image_prompt_id GROUP BY image_prompts.id ORDER BY image_prompts.id ASC";
+  $row = db_query_all($query);
+  if (!$row) {
+    return false;
+  }
+  return $row;
+}
 
 
 

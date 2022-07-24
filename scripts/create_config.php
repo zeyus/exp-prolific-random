@@ -61,6 +61,9 @@ function get_config_from_input() {
     $mysql_port = 3306;
   }
 
+  echo "Enter report password: ";
+  $report_pw = trim(fgets(STDIN));
+
   # prompt user for database name
   echo "Enter database name: ";
   $db_name = trim(fgets(STDIN));
@@ -93,7 +96,8 @@ function get_config_from_input() {
     'mysql_pass' => $mysql_pass,
     'mysql_port' => $mysql_port,
     'db_name' => $db_name,
-    'data_dir' => $data_dir
+    'data_dir' => $data_dir,
+    'report_pw' => $report_pw
   );
 }
 
@@ -126,6 +130,7 @@ while (true) {
   echo "MySQL password: {$config['mysql_pass']}\n";
   echo "Database name: {$config['db_name']}\n";
   echo "Data directory: {$config['data_dir']}\n";
+  echo "Report password: {$config['report_pw']}\n";
   echo "Is this correct? [y/n] ";
   $answer = trim(fgets(STDIN));
   if ($answer == 'y') {
