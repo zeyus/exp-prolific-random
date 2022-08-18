@@ -435,6 +435,24 @@
         timeline.push(consent_page);
         timeline.push(welcome_page);
         timeline.push(image_trials);
+
+        const thankyou_page = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div>' +
+                    '<h2>The experiment is done. Thank you for your participation!</h2>' +
+                    '<p>If you are interested in our research on creativity you can read more here:</p>' +
+                    '<p><a href="https://escholarship.org/uc/item/9p3276dt" target="_blank">Rosenberg, M., Gordon, G., Noy, L., & Tylen, K. (2022). Social Interaction Dynamics Modulates Collective Creativity. In Proceedings of the Annual Meeting of the Cognitive Science Society (Vol. 44, No. 44).</a></p>' +
+                    '<p><a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0182133" target="_blank">Hart, Y., Mayo, A. E., Mayo, R., Rozenkrantz, L., Tendler, A., Alon, U., & Noy, L. (2017). Creative foraging: An experimental paradigm for studying exploration and discovery. PloS one, 12(8), e0182133.</a></p>' +
+                    '<p>If you have questions about the study or your participation, you are welcome to contact Kristian Tylén (<a href="mailto:kristian@cc.au.dk">kristian@cc.au.dk</a>).</p>' +
+                    '</div>',
+          choices: ['Finish'],
+          on_start: function() {
+            jsPsych.setProgressBar(0);
+          }
+        }
+
+        timeline.push(thankyou_page);
+        
         
     };
 
