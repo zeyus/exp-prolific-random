@@ -141,7 +141,7 @@
         {
           name: slider_prefix + "creative",
           prompt: "How creative do you think this image is?",
-          help: "<b>how creative you find the figure</b> on a scale from 1 to 100, where 1 is <u>not creative</u> and 100 is <u>very creative</u>.",
+          help: "<b>how creative you find the figure</b> on a scale from 1 to 100, where 1 is <u>not creative</u> and 100 is <u>very creative</u>. A creative figure could be one that you find <b>surprising and interesting</b> relative to other figures.",
           pips: {
             ...slider_default['pips'],
             format: slider_pip_formatter(labels_creative, labels_creative_values)
@@ -413,13 +413,13 @@
         }
         const welcome_page = {
           type: jsPsychHtmlButtonResponse,
-          stimulus: '<div style="text-align: left;"><h2>Task instructions</h2><div>In the following, you will be presented with '+ n_images +' simple figures one-by-one. All figures consist of 10 small green squares on black background (see some examples of figures below).</div>' +
+          stimulus: '<div style="text-align: left;"><h2>Task instructions</h2><div>In the following, you will be presented with '+ n_images +' simple figures, presented one-by-one. All figures consist of 10 small green squares on black background (see some examples of figures below).</div>' +
           '<img src="img/example.png" class="example">' +
           '<div>Your task is, for each figure, to rate them for three different properties. Please read through the explanation of the three rating scales very carefully until you feel you have a good understanding of what you are supposed to do.</div>' +
           '<ol class="custom-list-marker custom-list-numeric-par">' +
           '<li>First, you will rate <b>how creative you find the figure</b> on a scale from 1 to 100, where 1 is <u>not creative</u> and 100 is <u>very creative</u>. Remember that all figures are produced from the same 10 green tiles and have to stay connected in one shape. The relative creativity of a figure should be assessed from this constraint. A creative figure could be one that you find <b>surprising and interesting</b> relative to other figures.</li>' +
           '<li>Next, you will rate their concreteness/abstractness, that is <b>how likely you find the figure to be intended to resemble something</b>. Some figures might be made purposefully to look like something particular, for instance an animal, an airplane, or a letter. Others might be abstract shapes that are not intended to look like something particular, but are interesting on their own, for instance a strange geometrical shape. The scale reflects how certain you are if the figure is one or the other. The middle value 50 indicates that you are <u>very uncertain</u>. 1 indicates that you are <u>certain that the shape is abstract</u> and does not resemble anything particular. 100 indicates that you are <u>certain that the figure resembles something concrete</u> that you could potentially name (like e.g. an object, animal or letter).</li>' +
-          '<li>Last, you will rate <b>how symmetric you find the figure</b> on a scale from 1 to 100, where 1 indicates that the figure is <u>not symmetric at all</u>, and 100 means that it is <u>perfectly symmetric</u>. Notice, that symmetry can be relative to one or more symmetry lines. A figure can be the perfect mirror of itself either horizontally, vertically or diagonally. It can also have more than one symmetry line. You can also have figures that show imperfect symmetry (close to be symmetric) or that have no symmetry at all.</li>' +
+          '<li>Last, you will rate <b>how symmetric you find the figure</b> on a scale from 1 to 100, where 1 indicates that the figure is <u>not symmetric</u>, and 100 means that it is <u>perfectly symmetric</u>. Notice, that symmetry can be relative to one or more symmetry lines. A figure can be the perfect mirror of itself either horizontally, vertically or diagonally. It can also have more than one symmetry line. You can also have figures that show imperfect symmetry (close to be symmetric) or that have no symmetry at all.</li>' +
           '</ol>' +
           '<div>The rating is self-paced. That is, you can use all the time you want to inspect the figure before you make a rating on each of the three scales (creativity, concreteness and symmetry). If you would like to return to the explanations of the rating scales later during the task, you can hover over the <span class="rating-help">?</span> symbol next to each of the rating scales. </div>' +
           '</div>',
